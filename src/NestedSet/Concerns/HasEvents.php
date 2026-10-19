@@ -13,6 +13,16 @@ trait HasEvents
      */
     public static function bootHasEvents()
     {
+        // Laravel 13 forbids instantiating the model while it is booting,
+        // and observe() does it internally, so defer until booted when possible.
+        if (method_exists(static::class, 'whenBooted')) {
+            static::whenBooted(function () {
+                static::observe(new NodeObserver);
+            });
+
+            return;
+        }
+
         static::observe(new NodeObserver);
     }
 
